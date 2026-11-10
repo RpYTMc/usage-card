@@ -160,6 +160,10 @@ type Layout = {
 
 const CHAT: Layout = { weeks: 26, cell: 14, gap: 3, perRow: 3, isPane: false }
 const PANE = 'usage'
+/** The pane width asked of the surface, in cells; the app may keep its own. */
+const PANE_COLUMNS = 44
+/** The pane's content never grows past this, however wide the app makes the pane. */
+const PANE_MAX_PX = 300
 
 /** The pane's layout from the cells its body has (a desktop cell is about 7 px wide). */
 function paneLayout(columns: number | undefined, isTerminal: boolean): Layout {
@@ -169,12 +173,12 @@ function paneLayout(columns: number | undefined, isTerminal: boolean): Layout {
   }
   const cell = 11
   const gap = 3
-  const px = cols * 7 - 16
+  const px = Math.min(cols * 7 - 16, PANE_MAX_PX)
   return {
     weeks: Math.max(8, Math.min(26, Math.floor((px + gap) / (cell + gap)))),
     cell,
     gap,
-    perRow: px >= 420 ? 3 : 2,
+    perRow: 2,
     isPane: true,
   }
 }
@@ -290,13 +294,15 @@ function card(
     </Box>
   )
 
-  // In the chat the card hugs its widest row (the heatmap), as the old /stats
-  // card did: flex-start in a column parent shrinks it to its content. The
-  // pane frames it already, so there it is a plain column.
+  // The card hugs its widest row (the heatmap), as the old /stats card did:
+  // flex-start in a column parent shrinks it to its content. In the pane it
+  // hugs too, without a border of its own (the pane is the frame).
   const frame = (inner: RenderElement) =>
     L.isPane ? (
-      <Box flexDirection="column" gap="sm">
-        {inner}
+      <Box flexDirection="column">
+        <Box flexDirection="column" alignSelf="flex-start" gap="sm">
+          {inner}
+        </Box>
       </Box>
     ) : (
       <Box flexDirection="column">
@@ -464,7 +470,7 @@ export const register: Register = on => {
 
     // The side pane, in every session. With no surface attached yet (the desktop
     // app attaches after the start) it stays open and is seated when one does.
-    void $.ui.open({ id: PANE, title: 'Usage' })
+    void $.ui.open({ id: PANE, title: 'Usage', columns: PANE_COLUMNS })
 
     // A brand-new chat (not a resume, not a reload of this mod) gets the card above its first message.
     const messages = await $.session.messages()
@@ -491,7 +497,7 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: PANE_COMMAND }, async $ => {
-    await $.ui.open({ id: PANE, title: 'Usage' })
+    await $.ui.open({ id: PANE, title: 'Usage', columns: PANE_COLUMNS })
 
     return {}
   })
