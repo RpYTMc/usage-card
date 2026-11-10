@@ -1,0 +1,8 @@
+{
+  "name": "usage-card",
+  "version": "0.1.0",
+  "description": "Your Claude Code usage stats as a card: sessions, messages, tokens, active days, peak hour, favorite model and an activity heatmap, at the start of every chat and in a side pane",
+  "author": { "name": "RpYT", "url": "https://github.com/RpYTMc" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

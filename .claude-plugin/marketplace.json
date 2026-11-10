@@ -1,0 +1,6 @@
+{
+  "name": "usage-card",
+  "description": "usage-card: your Claude Code usage stats as a card at the start of every chat and in a side pane",
+  "owner": { "name": "RpYT" },
+  "plugins": [{ "name": "usage-card", "source": "./" }]
+}
